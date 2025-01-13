@@ -220,20 +220,45 @@ class _BetterPlayerState extends State<BetterPlayer>
 
     await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
+    // Get the video aspect ratio with a more reliable fallback
+    final videoAspectRatio =
+        widget.controller.videoPlayerController?.value.aspectRatio ??
+            _betterPlayerConfiguration.aspectRatio ??
+            1.0;
+
+    // Get configured fullscreen aspect ratio if available
+    final fullscreenAspectRatio =
+        _betterPlayerConfiguration.fullScreenAspectRatio;
+
+    // Determine which aspect ratio to use for orientation detection
+    final effectiveAspectRatio = fullscreenAspectRatio ?? videoAspectRatio;
+
     if (_betterPlayerConfiguration.autoDetectFullscreenDeviceOrientation ==
         true) {
-      final aspectRatio =
-          widget.controller.videoPlayerController?.value.aspectRatio ?? 1.0;
       List<DeviceOrientation> deviceOrientations;
-      if (aspectRatio < 1.0) {
+
+      // Consider a video portrait if aspect ratio is less than 0.95
+      // This threshold helps handle slightly imperfect aspect ratios
+      if (effectiveAspectRatio < 0.95) {
         deviceOrientations = [
           DeviceOrientation.portraitUp,
-          DeviceOrientation.portraitDown
+          DeviceOrientation.portraitDown,
         ];
-      } else {
+      }
+      // Consider a video landscape if aspect ratio is greater than 1.05
+      else if (effectiveAspectRatio > 1.05) {
         deviceOrientations = [
           DeviceOrientation.landscapeLeft,
-          DeviceOrientation.landscapeRight
+          DeviceOrientation.landscapeRight,
+        ];
+      }
+      // For aspect ratios very close to 1 (square), allow all orientations
+      else {
+        deviceOrientations = [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
         ];
       }
       await SystemChrome.setPreferredOrientations(deviceOrientations);
