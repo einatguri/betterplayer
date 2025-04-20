@@ -102,7 +102,9 @@ bool _remoteCommandsInitialized = false;
 
     if (showNotification){
         [self setRemoteCommandsNotificationActive];
-        [self setupRemoteCommands: player, skipForwardTimeInMilliseconds, skipBackwardTimeInMilliseconds];
+        [self setupRemoteCommands:player
+            skipForwardTimeInMilliseconds:10000
+            skipBackwardTimeInMilliseconds:10000];
         [self setupRemoteCommandNotification: player, title, author, imageUrl];
         [self setupUpdateListener: player, title, author, imageUrl];
     }
@@ -122,7 +124,9 @@ bool _remoteCommandsInitialized = false;
 }
 
 
-- (void) setupRemoteCommands:(BetterPlayer*)player, skipForwardTimeInMilliseconds, skipBackwardTimeInMilliseconds {
+- (void)setupRemoteCommands:(BetterPlayer *)player
+    skipForwardTimeInMilliseconds:(NSInteger)skipForwardTimeInMilliseconds
+    skipBackwardTimeInMilliseconds:(NSInteger)skipBackwardTimeInMilliseconds {
     if (_remoteCommandsInitialized){
         return;
     }
